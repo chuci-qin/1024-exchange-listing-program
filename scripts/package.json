@@ -1,0 +1,19 @@
+{
+  "name": "listing-program-scripts",
+  "version": "1.0.0",
+  "description": "Scripts for 1024 Exchange Listing Program",
+  "scripts": {
+    "deploy": "bash deploy.sh",
+    "init": "node init_listing_config.js"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.98.4",
+    "borsh": "^0.7.0",
+    "bs58": "^6.0.0"
+  },
+  "main": "init_listing_config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
