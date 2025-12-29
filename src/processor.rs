@@ -799,7 +799,7 @@ fn process_object_token(
     }
 
     // 加载提案
-    let mut proposal = TokenProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = TokenProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -860,13 +860,15 @@ fn process_approve_token(
     let registry_account = next_account_info(account_iter)?;
     let config_account = next_account_info(account_iter)?;
     let system_program = next_account_info(account_iter)?;
-
+    
     // 加载配置并验证 Admin
     let mut config = ListingConfig::try_from_slice(&config_account.data.borrow())?;
     verify_admin(admin, &config)?;
 
     // 加载提案
-    let mut proposal = TokenProposal::try_from_slice(&proposal_account.data.borrow())?;
+    // Note: Use deserialize() instead of try_from_slice() because when oracle = None,
+    // the serialized data is shorter than the account size (Option<None> uses 1 byte vs 33).
+    let mut proposal = TokenProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -946,7 +948,7 @@ fn process_reject_token(
     verify_admin(admin, &config)?;
 
     // 加载提案
-    let mut proposal = TokenProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = TokenProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -998,7 +1000,7 @@ fn process_cancel_token_proposal(
     }
 
     // 加载提案
-    let mut proposal = TokenProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = TokenProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证 Proposer
     if &proposal.proposer != proposer.key {
@@ -1060,7 +1062,7 @@ fn process_finalize_token(
     let mut config = ListingConfig::try_from_slice(&config_account.data.borrow())?;
 
     // 加载提案
-    let mut proposal = TokenProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = TokenProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -1157,7 +1159,7 @@ fn process_claim_token_stake(
     }
 
     // 加载提案
-    let mut proposal = TokenProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = TokenProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证 Proposer
     if &proposal.proposer != proposer.key {
@@ -1175,7 +1177,7 @@ fn process_claim_token_stake(
     }
 
     // 验证 Registry 存在
-    let registry = TokenRegistry::try_from_slice(&registry_account.data.borrow())?;
+    let registry = TokenRegistry::deserialize(&mut &registry_account.data.borrow()[..])?;
     if registry.proposer != *proposer.key {
         return Err(ListingError::NotProposer.into());
     }
@@ -1227,7 +1229,7 @@ fn process_update_token_status(
     verify_admin(admin, &config)?;
 
     // 加载 Registry
-    let mut registry = TokenRegistry::try_from_slice(&registry_account.data.borrow())?;
+    let mut registry = TokenRegistry::deserialize(&mut &registry_account.data.borrow()[..])?;
     
     // 更新状态
     registry.is_active = is_active;
@@ -1288,13 +1290,13 @@ fn process_propose_spot_market(
     validate_market_symbol(&symbol, true)?;
 
     // 验证 Base Token 已注册
-    let base_registry = TokenRegistry::try_from_slice(&base_token_registry.data.borrow())?;
+    let base_registry = TokenRegistry::deserialize(&mut &base_token_registry.data.borrow()[..])?;
     if base_registry.token_index != base_token_index || !base_registry.is_active {
         return Err(ListingError::TokenNotRegistered.into());
     }
 
     // 验证 Quote Token 已注册
-    let quote_registry = TokenRegistry::try_from_slice(&quote_token_registry.data.borrow())?;
+    let quote_registry = TokenRegistry::deserialize(&mut &quote_token_registry.data.borrow()[..])?;
     if quote_registry.token_index != quote_token_index || !quote_registry.is_active {
         return Err(ListingError::TokenNotRegistered.into());
     }
@@ -1423,7 +1425,7 @@ fn process_object_spot_market(
     }
 
     // 加载提案
-    let mut proposal = SpotMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = SpotMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -1490,7 +1492,7 @@ fn process_approve_spot_market(
     verify_admin(admin, &config)?;
 
     // 加载提案
-    let mut proposal = SpotMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = SpotMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -1575,7 +1577,7 @@ fn process_reject_spot_market(
     verify_admin(admin, &config)?;
 
     // 加载提案
-    let mut proposal = SpotMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = SpotMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -1627,7 +1629,7 @@ fn process_cancel_spot_proposal(
     }
 
     // 加载提案
-    let mut proposal = SpotMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = SpotMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证 Proposer
     if &proposal.proposer != proposer.key {
@@ -1689,7 +1691,7 @@ fn process_finalize_spot_market(
     let mut config = ListingConfig::try_from_slice(&config_account.data.borrow())?;
 
     // 加载提案
-    let mut proposal = SpotMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = SpotMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -1794,7 +1796,7 @@ fn process_claim_spot_stake(
     }
 
     // 加载提案
-    let mut proposal = SpotMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = SpotMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证 Proposer
     if &proposal.proposer != proposer.key {
@@ -1995,13 +1997,13 @@ fn process_propose_perp_market(
     validate_market_symbol(&symbol, false)?;
 
     // 验证 Base Token 已注册
-    let base_registry = TokenRegistry::try_from_slice(&base_token_registry.data.borrow())?;
+    let base_registry = TokenRegistry::deserialize(&mut &base_token_registry.data.borrow()[..])?;
     if base_registry.token_index != base_token_index || !base_registry.is_active {
         return Err(ListingError::TokenNotRegistered.into());
     }
 
     // 验证 Quote Token 已注册
-    let quote_registry = TokenRegistry::try_from_slice(&quote_token_registry.data.borrow())?;
+    let quote_registry = TokenRegistry::deserialize(&mut &quote_token_registry.data.borrow()[..])?;
     if quote_registry.token_index != quote_token_index || !quote_registry.is_active {
         return Err(ListingError::TokenNotRegistered.into());
     }
@@ -2147,7 +2149,7 @@ fn process_object_perp_market(
     }
 
     // 加载提案
-    let mut proposal = PerpMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = PerpMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -2214,7 +2216,7 @@ fn process_approve_perp_market(
     verify_admin(admin, &config)?;
 
     // 加载提案
-    let mut proposal = PerpMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = PerpMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -2310,7 +2312,7 @@ fn process_reject_perp_market(
     verify_admin(admin, &config)?;
 
     // 加载提案
-    let mut proposal = PerpMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = PerpMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -2362,7 +2364,7 @@ fn process_cancel_perp_proposal(
     }
 
     // 加载提案
-    let mut proposal = PerpMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = PerpMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证 Proposer
     if &proposal.proposer != proposer.key {
@@ -2424,7 +2426,7 @@ fn process_finalize_perp_market(
     let mut config = ListingConfig::try_from_slice(&config_account.data.borrow())?;
 
     // 加载提案
-    let mut proposal = PerpMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = PerpMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证状态
     if proposal.status != ProposalStatus::Pending {
@@ -2540,7 +2542,7 @@ fn process_claim_perp_stake(
     }
 
     // 加载提案
-    let mut proposal = PerpMarketProposal::try_from_slice(&proposal_account.data.borrow())?;
+    let mut proposal = PerpMarketProposal::deserialize(&mut &proposal_account.data.borrow()[..])?;
     
     // 验证 Proposer
     if &proposal.proposer != proposer.key {
