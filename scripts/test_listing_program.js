@@ -19,8 +19,8 @@ const path = require("path");
 const bs58 = require("bs58");
 
 // Configuration
-const RPC_URL = "https://testnet-rpc.1024chain.com/rpc/";
-const WS_URL = "wss://testnet-rpc.1024chain.com/ws/";
+const RPC_URL = "https://rpc-testnet.1024chain.com/rpc/";
+const WS_URL = "wss://rpc-testnet.1024chain.com/ws/";
 const LISTING_PROGRAM_ID = new PublicKey("41QWGy3LpKcjrVVgXnCpFRa45wthZCk91sjmp8DccZzq");
 
 // PDA Seeds

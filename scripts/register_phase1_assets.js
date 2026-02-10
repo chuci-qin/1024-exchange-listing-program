@@ -32,7 +32,7 @@ const borsh = require('borsh');
 // Configuration
 // ============================================================================
 
-const RPC_URL = 'https://testnet-rpc.1024chain.com/rpc/';
+const RPC_URL = 'https://rpc-testnet.1024chain.com/rpc/';
 const LISTING_PROGRAM_ID = new PublicKey('41QWGy3LpKcjrVVgXnCpFRa45wthZCk91sjmp8DccZzq');
 
 // PDA Seeds (from processor.rs)
